@@ -35,13 +35,13 @@ void RA_DriverTTB(void){
 		break;
 
 	case RA_STATUS1: // Reverse
-		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 0);
-		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 1);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 1);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 0);
 		break;
 
 	case RA_STATUS2: // Forward
-		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 1);
-		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 0);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 0);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 1);
 		break;
 
 	case RA_STATUS3: //Break
@@ -367,4 +367,5 @@ void RA_UART(void){
 		HAL_UART_Receive_IT(&huart2, (uint8_t*)uartByte, sizeof(uartByte));
 	}
 }
+
 
