@@ -312,13 +312,13 @@ void RA_Print_Position(void){
 }
 
 void RA_Print_Step(void){
-	//@brief: Print the current position of the motor in revolution
+	//@brief: Print the current ref of the motor in RPM
 
 	extern UART_HandleTypeDef huart2;
 	extern int16_t Ref;
 
 	char ref[32] = "";
-	sprintf(ref,"Current step ref: %d rev\r\n",Ref);
+	sprintf(ref,"Current step ref: %d rpm\r\n",Ref);
 
 	HAL_UART_Transmit(&huart2, (uint8_t*) ref, strlen(ref), 100);
 }
@@ -367,5 +367,6 @@ void RA_UART(void){
 		HAL_UART_Receive_IT(&huart2, (uint8_t*)uartByte, sizeof(uartByte));
 	}
 }
+
 
 
