@@ -7,7 +7,9 @@
 
 #include "RAdef.h"
 
-// LOGIC FUNCTIONS
+											//****************************************************//
+											/////////////////LOGIC FUNCTIONS/////////////////////
+											//****************************************************//
 
 void RA_stdbyToggle(){
 	//@brief: Does a toggle of the PC7 which correspond to the STDBY pin in the RAdef.h.
@@ -48,8 +50,9 @@ void RA_DriverTTB(void){
 		break;
 	}
 }
-
-//HARDWARE FUNCTIONS
+									//****************************************************//
+									/////////////////HARDWARE FUNCTIONS/////////////////////
+									//****************************************************//
 void RA_Motor_Neutral(void){
 	//@brief: puts the motor in default mode
 
@@ -155,7 +158,9 @@ void controlModeToggle(int8_t controlMode){
 		return;
 	}
 }
-
+								//****************************************************//
+								/////////////////UART FUNCTIONS/////////////////////
+								//****************************************************//
 int RA_inputModeControl(char buffer[32]){
 	//@brief: fcn will choose the mode that the user wants through the UART.
 	//@param buffer[32]: buffer that you want to check. If needed change the size for larger text inputs
@@ -362,3 +367,4 @@ void RA_UART(void){
 		HAL_UART_Receive_IT(&huart2, (uint8_t*)uartByte, sizeof(uartByte));
 	}
 }
+
