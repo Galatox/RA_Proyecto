@@ -7,9 +7,7 @@
 
 #include "RAdef.h"
 
-											//****************************************************//
-											/////////////////LOGIC FUNCTIONS/////////////////////
-											//****************************************************//
+// LOGIC FUNCTIONS
 
 void RA_stdbyToggle(){
 	//@brief: Does a toggle of the PC7 which correspond to the STDBY pin in the RAdef.h.
@@ -35,13 +33,13 @@ void RA_DriverTTB(void){
 		break;
 
 	case RA_STATUS1: // Reverse
-		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 1);
-		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 0);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 0);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 1);
 		break;
 
 	case RA_STATUS2: // Forward
-		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 0);
-		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 1);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN1, 1);
+		HAL_GPIO_WritePin(GPIOC,RA_AIN2, 0);
 		break;
 
 	case RA_STATUS3: //Break
@@ -50,9 +48,8 @@ void RA_DriverTTB(void){
 		break;
 	}
 }
-									//****************************************************//
-									/////////////////HARDWARE FUNCTIONS/////////////////////
-									//****************************************************//
+
+//HARDWARE FUNCTIONS
 void RA_Motor_Neutral(void){
 	//@brief: puts the motor in default mode
 
@@ -89,8 +86,8 @@ float RA_SpeedController(int16_t speedStorage[3]){
 	//@param Y1: output of the controller.
 
 
-	float zero = 0.7217;
-	float k = 1.9665;
+	float zero = 0.8474;
+	float k = 1.9624;
 
 	float Y1 = k*(speedStorage[0]-zero*speedStorage[1]) + speedStorage[2];
 
@@ -158,9 +155,7 @@ void controlModeToggle(int8_t controlMode){
 		return;
 	}
 }
-								//****************************************************//
-								/////////////////UART FUNCTIONS/////////////////////
-								//****************************************************//
+
 int RA_inputModeControl(char buffer[32]){
 	//@brief: fcn will choose the mode that the user wants through the UART.
 	//@param buffer[32]: buffer that you want to check. If needed change the size for larger text inputs
@@ -247,20 +242,21 @@ void RA_inputValues(char buffer[32]){
 	if(controlMode == RA_STEP){
 
 		if((ref2<-204)){
-			Ref = -204;
+			Ref = (int16_t) -204;
 		}
 		else if((ref2>204)){
-			Ref = 204;
+			Ref = (int16_t) 204;
 		}
 
 		else{
-			Ref = ref2;
+			Ref = (int16_t) ref2;
 		}
 		return;
 	}
 
 	if((ref2 >= -999) || (ref2 <= 999)){
 		Ref = (int16_t) ref2;
+		return;
 	}
 }
 
@@ -335,13 +331,13 @@ void RA_UART(void){
 	static int uartIndex = 0;
 	int y = 0;
 
-	if((!strcmp(uartByte,"\n")) || (!strcmp(uartByte,"\n"))){
+	if((!strcmp(uartByte,"\r")) || (!strcmp(uartByte,"\n"))){
 
 		uartIndex = 0;
 		//Checking of the buffer
 		y = RA_inputModeControl(uartBuffer);
 		//Avoid possible corruption of Ref
-		if(y == 1){
+		if(y){
 			memset(uartBuffer,0,strlen(uartBuffer));
 			memset(uartByte,0,1);
 			HAL_UART_Receive_IT(&huart2, (uint8_t*)uartByte, sizeof(uartByte));
@@ -367,6 +363,3 @@ void RA_UART(void){
 		HAL_UART_Receive_IT(&huart2, (uint8_t*)uartByte, sizeof(uartByte));
 	}
 }
-
-
-

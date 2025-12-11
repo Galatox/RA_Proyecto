@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "RAdef.h"
-#include "stdlib.h"
 #include "math.h"
 /* USER CODE END Includes */
 
@@ -80,6 +79,8 @@ int16_t Ref = 0;
 char uartBuffer[32]= "";
 char uartByte[1] = "";
 
+// While
+int p = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -145,7 +146,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				// Print of the speed/position of the motor
 				// Take in count the ripple values.
 				if(ix > 200){
-					controlMode == RA_SPEED ? RA_Print_Speed() : RA_Print_Position();
+					p = 1;
 					ix = 0;
 				}
 			}
@@ -160,7 +161,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 				ix++;
 				if(ix >200){
-					RA_Print_Step();
+					p = 1;
 					ix = 0;
 				}
 			}
@@ -241,6 +242,21 @@ int main(void)
 		HAL_Delay(300);
 		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 		HAL_Delay(300);
+
+		if(p){
+			switch(controlMode){
+			case RA_STEP:
+				RA_Print_Step();
+				break;
+			case RA_SPEED:
+				RA_Print_Speed();
+				break;
+			case RA_POSITION:
+				RA_Print_Position();
+				break;
+			}
+
+		}
 
 		/* USER CODE END WHILE */
 
