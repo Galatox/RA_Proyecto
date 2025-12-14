@@ -69,11 +69,11 @@ int16_t speedRPM = 0;
 float speedStorage[3] ={0,0,0};
 
 //Position
-float posREV = 0;
+float pos = 0;
 float posStorage[2] ={0,0};
 
 // Reference for speed/position that the user wants the motor to acquire.
-float Ref = 0;
+int16_t Ref = 0;
 
 // UART:
 //Buffer for the reception of the commands that comes from the UART
@@ -117,25 +117,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if((controlMode ==  RA_POSITION_DEG) || (controlMode == RA_POSITION_REV)){
 			// Makes the regulation base on a relative position and not an absolute one
 			//More details in RAdef.c in RA_inputModeControl()
-			posREV = count/861;
-			float posDEG = 0 ;
-			int16_t speedDEG = 0;
+			pos = ((controlMode == RA_POSITION_REV)? count/861 : count/(360 * 861));
+//			float posDEG = 0 ;
+//			int16_t speedDEG = 0;
 
-			if(controlMode == RA_POSITION_DEG){
-				 posDEG = posREV * 360;
-				 speedDEG = speedRPM * 6;
-			}
+
 			//Position
 			// U1
 			posStorage[RA_PREVIOUS_POS] = posStorage[RA_ACTUAL_POS];
-			posStorage[RA_ACTUAL_POS] = Ref- (controlMode == RA_POSITION_REV? posREV : posDEG);
+			posStorage[RA_ACTUAL_POS] = Ref - pos; //(controlMode == RA_POSITION_REV? posREV : posDEG);
 			//Y1
 
 			//Output of the first controller
 			float refVel2 = RA_PositionController(posStorage);
 			//Output of the second controller
 			speedStorage[RA_PREVIOUS_SPEED] = speedStorage[RA_ACTUAL_SPEED];
-			speedStorage[RA_ACTUAL_SPEED] = refVel2-(controlMode == RA_POSITION_REV ? speedRPM : speedDEG);
+			speedStorage[RA_ACTUAL_SPEED] = refVel2- speedRPM;//(controlMode == RA_POSITION_REV ? speedRPM : speedDEG);
 
 			speedStorage[2] = RA_SpeedController(speedStorage);
 		}
@@ -166,7 +163,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			//Step mode.
 			else if(controlMode == RA_STEP){
-				TIM4->CCR1 = abs(Ref*RA_MAX_SPEED_CRR/204);
+				TIM4->CCR1 = abs(Ref * RA_MAX_SPEED_CRR/204);
 				if(Ref > 0)
 					RA_Motor_Forward();
 				else if(Ref < 0){

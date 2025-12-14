@@ -118,13 +118,14 @@ float RA_PositionController(float posStorage[2]){
 	//@param Y1: output of the controller in RPMs.
 	extern int controlMode;
 
-	float zero = 0;
-	float k = 2.744 * 100;
-	k = (controlMode == RA_POSITION_REV? k : (k / 360));
+	float zero = ((controlMode == RA_POSITION_REV) ? 0 : 0.9616);
+	float k = ((controlMode == RA_POSITION_REV)? 3.1497 * 100  : 52.48);
+	//k = (controlMode == RA_POSITION_REV? k : (k / 360));
 
 	float Y1 = k*(posStorage[RA_ACTUAL_POS]-zero*posStorage[RA_PREVIOUS_POS]);
 
-	return Y1;
+	//Y1 = Y1 >= 40? 40:Y1;
+	return ((controlMode == RA_POSITION_REV)? Y1 : Y1 * 6);
 }
 
 void controlModeToggle(int8_t controlMode){
@@ -157,8 +158,8 @@ int RA_inputModeControl(char buffer[32]){
 
 	extern int controlMode;
 	extern UART_HandleTypeDef huart2;
-	extern float Ref;
-	extern float posREV; // Actual position of the motor
+	extern int16_t Ref;
+	extern float pos; // Actual position of the motor
 	extern int32_t count;
 	extern int16_t speedStorage;
 	extern int16_t posStorage;
@@ -194,7 +195,7 @@ int RA_inputModeControl(char buffer[32]){
 		controlMode = RA_POSITION_REV;
 		//Makes the controller starts on the relative position and not the absolute one.
 		count = 0;
-		posREV = 0;
+		pos = 0;
 		Ref = 0;
 		posStorage = 0;
 		speedStorage = 0;
@@ -211,7 +212,7 @@ int RA_inputModeControl(char buffer[32]){
 		controlMode = RA_POSITION_DEG;
 		//Makes the controller starts on the relative position and not the absolute one.
 		count = 0;
-		posREV = 0;
+		pos = 0;
 		Ref = 0;
 		posStorage = 0;
 		speedStorage = 0;
@@ -253,10 +254,10 @@ int RA_inputModeControl(char buffer[32]){
 void RA_inputValues(char buffer[32]){
 	//@brief: Does the cheking of the input value and do the conversion to int16_t
 
-	extern float Ref;
+	extern int16_t Ref;
 	extern int controlMode;
 
-	float ref2 = 0;
+	int16_t ref2 = 0;
 	ref2 = atof(buffer);
 
 	//STEP control
@@ -300,7 +301,7 @@ void RA_Print_Speed(void){
 	//@brief: Print the current speed of the motor in RPM
 
 	extern UART_HandleTypeDef huart2;
-	extern float Ref;
+	extern int16_t Ref;
 	extern int16_t speedRPM;
 
 	char speed[32] = "";
@@ -321,23 +322,23 @@ void RA_Print_Position(void){
 	//@brief: Print the current position of the motor in revolution
 
 	extern UART_HandleTypeDef huart2;
-	extern float posREV;
+	extern float pos;
 	extern int controlMode;
 
-	char pos[32] = "";
-	sprintf(pos,"Current position: %.1f %s\r\n",posREV,controlMode == RA_POSITION_REV? "Rev" :"degrees");
+	char position_TX[32] = "";
+	sprintf(position_TX,"Current position: %.1f %s\r\n",pos,controlMode == RA_POSITION_REV? "Rev" :"degrees");
 
-	HAL_UART_Transmit(&huart2, (uint8_t*) pos, strlen(pos), 100);
+	HAL_UART_Transmit(&huart2, (uint8_t*) position_TX, strlen(position_TX), 100);
 }
 
 void RA_Print_Step(void){
 	//@brief: Print the current ref of the motor in RPM
 
 	extern UART_HandleTypeDef huart2;
-	extern float Ref;
+	extern int16_t Ref;
 
 	char ref[32] = "";
-	sprintf(ref,"Current step ref: %.1f rpm\r\n",Ref);
+	sprintf(ref,"Current step ref: %d rpm\r\n",Ref);
 
 	HAL_UART_Transmit(&huart2, (uint8_t*) ref, strlen(ref), 100);
 }
