@@ -125,7 +125,7 @@ float RA_PositionController(float posStorage[2]){
 	float Y1 = k*(posStorage[RA_ACTUAL_POS]-zero*posStorage[RA_PREVIOUS_POS]);
 
 	//Y1 = Y1 >= 40? 40:Y1;
-	return ((controlMode == RA_POSITION_REV)? Y1 : Y1 * 6);
+	return Y1;
 }
 
 void controlModeToggle(int8_t controlMode){

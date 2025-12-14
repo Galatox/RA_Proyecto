@@ -117,7 +117,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if((controlMode ==  RA_POSITION_DEG) || (controlMode == RA_POSITION_REV)){
 			// Makes the regulation base on a relative position and not an absolute one
 			//More details in RAdef.c in RA_inputModeControl()
-			pos = ((controlMode == RA_POSITION_REV)? count/861 : count/(360 * 861));
+			pos = ((controlMode == RA_POSITION_REV)? (float) count/861.0f : (float) 360.0f *count/ 861.0f);
 //			float posDEG = 0 ;
 //			int16_t speedDEG = 0;
 
