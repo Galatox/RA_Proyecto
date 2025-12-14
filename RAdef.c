@@ -116,10 +116,11 @@ float RA_PositionController(float posStorage[2]){
 	//posStorage[0]: actual pos. input including the error because of the feedback loop.
 	//posStorage[1]: previous pos. input.
 	//@param Y1: output of the controller in RPMs.
-
+	extern int controlMode;
 
 	float zero = 0;
 	float k = 2.744 * 100;
+	k = (controlMode == RA_POSITION_REV? k : (k / 360));
 
 	float Y1 = k*(posStorage[RA_ACTUAL_POS]-zero*posStorage[RA_PREVIOUS_POS]);
 
