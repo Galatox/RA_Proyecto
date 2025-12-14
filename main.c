@@ -65,14 +65,15 @@ int8_t controlMode = RA_DEFAULT;
 
 //Speed
 int16_t speedRPM = 0;
-int16_t speedStorage[3] ={0,0,0};
+
+float speedStorage[3] ={0,0,0};
 
 //Position
-int32_t posREV = 0;
-int16_t posStorage[2] ={0,0};
+float posREV = 0;
+float posStorage[2] ={0,0};
 
 // Reference for speed/position that the user wants the motor to acquire.
-int16_t Ref = 0;
+float Ref = 0;
 
 // UART:
 //Buffer for the reception of the commands that comes from the UART
@@ -109,29 +110,41 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		speed = (count-previousCount)/0.01;
 		speedRPM = speed * 60/861;
 
+
+
 		//Start of the feedback loop
 
-		if(controlMode ==  RA_POSITION){
+		if((controlMode ==  RA_POSITION_DEG) || (controlMode == RA_POSITION_REV)){
 			// Makes the regulation base on a relative position and not an absolute one
 			//More details in RAdef.c in RA_inputModeControl()
 			posREV = count/861;
+			float posDEG = 0 ;
+			int16_t speedDEG = 0;
+
+			if(controlMode == RA_POSITION_DEG){
+				 posDEG = posREV * 360;
+				 speedDEG = speedRPM * 6;
+			}
 			//Position
 			// U1
-			posStorage[1] = posStorage[0];
-			posStorage[0] = Ref-posREV;
+			posStorage[RA_PREVIOUS_POS] = posStorage[RA_ACTUAL_POS];
+			posStorage[RA_ACTUAL_POS] = Ref- (controlMode == RA_POSITION_REV? posREV : posDEG);
 			//Y1
-			speedStorage[1] = speedStorage[0];
+
 			//Output of the first controller
-			speedStorage[0] = RA_PositionController(posStorage);
+			float refVel2 = RA_PositionController(posStorage);
 			//Output of the second controller
+			speedStorage[RA_PREVIOUS_SPEED] = speedStorage[RA_ACTUAL_SPEED];
+			speedStorage[RA_ACTUAL_SPEED] = refVel2-(controlMode == RA_POSITION_REV ? speedRPM : speedDEG);
+
 			speedStorage[2] = RA_SpeedController(speedStorage);
 		}
 
 		if(controlMode == RA_SPEED){
 			//Speed
 			// U2 y U1
-			speedStorage[1] = speedStorage[0];
-			speedStorage[0] = Ref-speedRPM;
+			speedStorage[RA_PREVIOUS_SPEED] = speedStorage[RA_ACTUAL_SPEED];
+			speedStorage[RA_ACTUAL_SPEED] = Ref-speedRPM;
 			//Y1
 			speedStorage[2] = RA_SpeedController(speedStorage);
 		}
@@ -251,18 +264,20 @@ int main(void)
 			case RA_SPEED:
 				RA_Print_Speed();
 				break;
-			case RA_POSITION:
+			case RA_POSITION_REV:
 				RA_Print_Position();
 				break;
-			}
-
+			case RA_POSITION_DEG:
+				RA_Print_Position();
+				break;
 		}
-
-		/* USER CODE END WHILE */
-
-		/* USER CODE BEGIN 3 */
 	}
-	/* USER CODE END 3 */
+
+	/* USER CODE END WHILE */
+
+	/* USER CODE BEGIN 3 */
+}
+/* USER CODE END 3 */
 }
 
 /**
