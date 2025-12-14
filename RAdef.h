@@ -24,10 +24,20 @@ Author: Erwan Bernard and Joaquin del Valle Zamudio*/
 #define RA_FALSE 0
 #define RA_TRUE 1
 #define RA_SPEED 2
-#define RA_POSITION 3
-#define RA_MAX_SPEED_CRR 511
+#define RA_POSITION_REV 3
 #define RA_STEP 4
 #define RA_STOP 5
+#define RA_POSITION_DEG 6
+#define RA_MAX_SPEED_CRR 511
+
+#define RA_ACTUAL_POS 0
+#define RA_PREVIOUS_POS 1
+
+#define RA_ACTUAL_SPEED 0
+#define RA_PREVIOUS_SPEED 1
+#define RA_PREVIOUS_SPEED_OUTPUT 2
+
+
 // HARDWARE PINS
 
 // INPUTS
@@ -50,8 +60,8 @@ void RA_Motor_Forward(void);
 void RA_Motor_Break(void);
 
 // HARDWARE CONTROL
-float RA_SpeedController(int16_t speedStorage[3]);
-float RA_PositionController(int16_t posStorage[2]);
+float RA_SpeedController(float speedStorage[3]);
+float RA_PositionController(float posStorage[2]);
 void RA_controlModeToggle(int8_t controlMode);
 
 // UART
