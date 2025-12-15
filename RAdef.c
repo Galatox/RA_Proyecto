@@ -118,13 +118,11 @@ float RA_PositionController(float posStorage[2]){
 	//@param Y1: output of the controller in RPMs.
 	extern int controlMode;
 
-	float zero = ((controlMode == RA_POSITION_REV) ? 0 : 0.9616);
-	float k = ((controlMode == RA_POSITION_REV)? 3.1497 * 100  : 52.48);
-	//k = (controlMode == RA_POSITION_REV? k : (k / 360));
+	float zero = 0.9616;
+	float k =  ((controlMode==RA_POSITION_REV) ? 2816.9 : 52.48);
 
 	float Y1 = k*(posStorage[RA_ACTUAL_POS]-zero*posStorage[RA_PREVIOUS_POS]);
 
-	//Y1 = Y1 >= 40? 40:Y1;
 	return Y1;
 }
 

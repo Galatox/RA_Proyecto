@@ -117,10 +117,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if((controlMode ==  RA_POSITION_DEG) || (controlMode == RA_POSITION_REV)){
 			// Makes the regulation base on a relative position and not an absolute one
 			//More details in RAdef.c in RA_inputModeControl()
-			pos = ((controlMode == RA_POSITION_REV)? (float) count/861.0f : (float) 360.0f *count/ 861.0f);
-//			float posDEG = 0 ;
-//			int16_t speedDEG = 0;
-
+			pos = ((controlMode == RA_POSITION_REV)? (float) count / 861.0f : (float) 360.0f * count / 861.0f);
 
 			//Position
 			// U1
@@ -214,7 +211,7 @@ int main(void)
 	/* MCU Configuration--------------------------------------------------------*/
 
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
+ 	HAL_Init();
 
 	/* USER CODE BEGIN Init */
 
